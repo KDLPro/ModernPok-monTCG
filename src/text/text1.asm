@@ -473,8 +473,8 @@ NeitherPlayerHasBasicPkmnText: ; 36c1a (d:6c1a)
 	done
 
 ReturnCardsToDeckAndDrawAgainText: ; 36c54 (d:6c54)
-	text "<RAMNAME> returns the cards"
-	line "to the Deck and draws again."
+	text "Return the cards to the Deck"
+	line "and draw again."
 	done
 
 ChooseUpTo5BasicPkmnToPlaceOnBenchText: ; 36c82 (d:6c82)
@@ -1147,5 +1147,8 @@ DamageCheckIfHeadsPlusDamageText: ; 37fa8 (d:7fa8)
 	line "If Heads, +<RAMNUM> damage!!"
 	done
 
-
+DamageCheckIfHeadsXDamageText: ; 37fcd (d:7fcd)
+	text "Damage check!"
+	line "If Heads, x <RAMNUM> damage!!"
+	done
 

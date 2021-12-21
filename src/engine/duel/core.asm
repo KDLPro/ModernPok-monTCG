@@ -1698,8 +1698,6 @@ Func_4b38:
 ; - tossing coin to determine first player to go
 HandleDuelSetup:
 ; init variables and shuffle cards
-	xor a
-	ld [wTimesMulliganed], a
 	call InitializeDuelVariables
 	call SwapTurn
 	call InitializeDuelVariables
@@ -1719,37 +1717,18 @@ HandleDuelSetup:
 	jp nz, .hand_cards_ok
 	ld a, b
 	or c
-	jp z, .neither_drew_basic_pkmn
+	jr z, .neither_drew_basic_pkmn
 	ld a, b
 	or a
-	jp nz, .opp_drew_no_basic_pkmn
+	jr nz, .opp_drew_no_basic_pkmn
 
 ;.player_drew_no_basic_pkmn
-	ldtx hl, ThereAreNoBasicPokemonInHand
-	call DrawWideTextBox_WaitForInput
-	call DisplayNoBasicPokemonInHandScreen
-	ldtx hl, YourOpponentSetsUp
-	call DrawWideTextBox_WaitForInput
-	
-	call SwapTurn
-	call ChooseInitialArenaAndBenchPokemon
-	call SwapTurn
-	call ZeroObjectPositionsAndToggleOAMCopy
-	call EmptyScreen
-	call DrawDuelistPortraitsAndNames
-	xor a
-	ld [wNumCardsBeingDrawn], a
-	call PrintDeckAndHandIconsAndNumberOfCards
-	call PrintReturnCardsToDeckDrawAgain
-	jr .shuffle_for_player
-	
 .ensure_player_basic_pkmn_loop
 	call DisplayNoBasicPokemonInHandScreenAndText
-.shuffle_for_player
 	call InitializeDuelVariables
 	call PlayShuffleAndDrawCardsAnimation_TurnDuelist
-	call IncreaseDrawPenalty
 	call ShuffleDeckAndDrawSevenCards
+	call IncreaseDrawPenalty
 	jr c, .ensure_player_basic_pkmn_loop
 	call SwapTurn
 	ldtx hl, MulliganPenalty1Text
@@ -1765,38 +1744,17 @@ HandleDuelSetup:
 	call AddCardToHand
 	dec b
 	jr nz, .draw_mulligan_opponent
-	farcall AIPlayInitialBasicCards
 	call SwapTurn
-	call ChooseInitialArenaAndBenchPokemon
-	jp .done_setup
+	jr .hand_cards_ok
 
 .opp_drew_no_basic_pkmn
 	call SwapTurn
-	ldtx hl, ThereAreNoBasicPokemonInHand
-	call DrawWideTextBox_WaitForInput
-	call DisplayNoBasicPokemonInHandScreen
-	ldtx hl, YouSetUp
-	call DrawWideTextBox_WaitForInput
-	
-	call SwapTurn
-	call ChooseInitialArenaAndBenchPokemon
-	call SwapTurn
-	call ZeroObjectPositionsAndToggleOAMCopy
-	call EmptyScreen
-	call DrawDuelistPortraitsAndNames
-	xor a
-	ld [wNumCardsBeingDrawn], a
-	call PrintDeckAndHandIconsAndNumberOfCards
-	call PrintReturnCardsToDeckDrawAgain
-	jr .shuffle_for_opponent
-	
 .ensure_opp_basic_pkmn_loop
 	call DisplayNoBasicPokemonInHandScreenAndText
-.shuffle_for_opponent
 	call InitializeDuelVariables
 	call PlayShuffleAndDrawCardsAnimation_TurnDuelist
-	call IncreaseDrawPenalty
 	call ShuffleDeckAndDrawSevenCards
+	call IncreaseDrawPenalty
 	jr c, .ensure_opp_basic_pkmn_loop
 	call SwapTurn
 	ldtx hl, MulliganPenalty1Text
@@ -1812,10 +1770,7 @@ HandleDuelSetup:
 	call AddCardToHand
 	dec b
 	jr nz, .draw_mulligan_player
-	call ChooseInitialBenchPokemon
-	call SwapTurn
-	call ChooseInitialArenaAndBenchPokemon
-	jr .done_setup
+	jr .hand_cards_ok
 
 .neither_drew_basic_pkmn
 	ldtx hl, NeitherPlayerHasBasicPkmnText
@@ -1826,17 +1781,8 @@ HandleDuelSetup:
 	call DisplayNoBasicPokemonInHandScreen
 	call InitializeDuelVariables
 	call SwapTurn
-	ldtx hl, BothPlayersReturnCardsToDeckAndDrawAgainText
-	call DrawWideTextBox_WaitForInput
-	call ExchangeRNG
+	call PrintReturnCardsToDeckDrawAgain
 	jp HandleDuelSetup
-	
-.done_setup
-	ldh a, [hWhoseTurn]
-	push af
-	ld a, OPPONENT_TURN
-	ldh [hWhoseTurn], a
-	jr .done_setup_2
 
 .hand_cards_ok
 	ldh a, [hWhoseTurn]
@@ -1846,7 +1792,6 @@ HandleDuelSetup:
 	call ChooseInitialArenaAndBenchPokemon
 	call SwapTurn
 	call ChooseInitialArenaAndBenchPokemon
-.done_setup_2
 	call SwapTurn
 	jp c, .error
 	call DrawPlayAreaToPlacePrizeCards
@@ -1924,12 +1869,9 @@ HandleDuelSetup:
 ; of the Play Area (player & opp)
 .PlacePrizes
 	ld hl, .PrizeCardCoordinates
+	ld e, DECK_SIZE - 7 - 1 ; deck size - cards drawn - 1
 	ld a, [wDuelInitialPrizes]
 	ld d, a
-	ld a, 0
-	sub d
-	ld e, a
-	ld d, 1
 
 .place_prize
 	push de
@@ -1948,28 +1890,16 @@ HandleDuelSetup:
 	ld a, SFX_08
 	call PlaySFX
 	; print new deck card number
-	ld a, DUELVARS_NUMBER_OF_CARDS_NOT_IN_DECK
-	call GetNonTurnDuelistVariable
-	ld c, a
-	ld a, DECK_SIZE
-	sub c
-	sub d
 	lb bc, 3, 5
+	ld a, e
 	call WriteTwoDigitNumberInTxSymbolFormat
-	
-	ld a, DUELVARS_NUMBER_OF_CARDS_NOT_IN_DECK
-	call GetTurnDuelistVariable
-	ld c, a
-	ld a, DECK_SIZE
-	sub c
-	sub d
 	lb bc, 18, 7
+	ld a, e
 	call WriteTwoDigitNumberInTxSymbolFormat
 	pop hl
 	pop de
-	; decrease number of prize cards left
-	inc d 
-	inc e
+	dec e ; decrease number of cards in deck
+	dec d ; decrease number of prize cards left
 	jr nz, .place_prize
 	ret
 
@@ -2058,11 +1988,11 @@ ChooseInitialArenaAndBenchPokemon:
 	ldh a, [hTempCardIndex_ff98]
 	ldtx hl, PlacedInTheArenaText
 	call DisplayCardDetailScreen
-
+	jr .choose_bench
 
 ; after choosing the active Pokemon, let the player place 0 or more basic Pokemon
 ; cards in the bench. loop until the player decides to stop placing Pokemon cards.
-ChooseInitialBenchPokemon:
+.choose_bench
 	call EmptyScreen
 	ld a, BOXMSG_BENCH_POKEMON
 	call DrawDuelBoxMessage
@@ -7802,6 +7732,8 @@ InitializeDuelVariables:
 	inc l
 	dec c
 	jr nz, .init_play_area
+	xor a
+	ld [wTimesMulliganed], a
 	ret
 
 ; draw [wDuelInitialPrizes] cards from the turn holder's deck and place them as prizes:
