@@ -1717,12 +1717,15 @@ HandleDuelSetup:
 	jp nz, .hand_cards_ok
 	ld a, b
 	or c
-	jr z, .neither_drew_basic_pkmn
+	jp z, .neither_drew_basic_pkmn
 	ld a, b
 	or a
-	jr nz, .opp_drew_no_basic_pkmn
+	jp nz, .opp_drew_no_basic_pkmn
 
 ;.player_drew_no_basic_pkmn
+	call SwapTurn
+	call ChooseInitialArenaAndBenchPokemon
+	call SwapTurn
 .ensure_player_basic_pkmn_loop
 	call DisplayNoBasicPokemonInHandScreenAndText
 	call InitializeDuelVariables
@@ -1744,10 +1747,14 @@ HandleDuelSetup:
 	call AddCardToHand
 	dec b
 	jr nz, .draw_mulligan_opponent
+	farcall AIPlayInitialBasicCards
 	call SwapTurn
-	jr .hand_cards_ok
+	call ChooseInitialArenaAndBenchPokemon
+	call SwapTurn
+	jr .done_setup
 
 .opp_drew_no_basic_pkmn
+	call ChooseInitialArenaAndBenchPokemon
 	call SwapTurn
 .ensure_opp_basic_pkmn_loop
 	call DisplayNoBasicPokemonInHandScreenAndText
@@ -1770,7 +1777,10 @@ HandleDuelSetup:
 	call AddCardToHand
 	dec b
 	jr nz, .draw_mulligan_player
-	jr .hand_cards_ok
+	call ChooseInitialBenchPokemon
+	call SwapTurn
+	call ChooseInitialArenaAndBenchPokemon
+	jr .done_setup
 
 .neither_drew_basic_pkmn
 	ldtx hl, NeitherPlayerHasBasicPkmnText
@@ -1783,6 +1793,12 @@ HandleDuelSetup:
 	call SwapTurn
 	call PrintReturnCardsToDeckDrawAgain
 	jp HandleDuelSetup
+	
+.done_setup
+	ldh a, [hWhoseTurn]
+	push af
+	ld a, PLAYER_TURN
+	jr .done_setup_2
 
 .hand_cards_ok
 	ldh a, [hWhoseTurn]
@@ -1792,6 +1808,7 @@ HandleDuelSetup:
 	call ChooseInitialArenaAndBenchPokemon
 	call SwapTurn
 	call ChooseInitialArenaAndBenchPokemon
+.done_setup_2
 	call SwapTurn
 	jp c, .error
 	call DrawPlayAreaToPlacePrizeCards
@@ -1988,11 +2005,11 @@ ChooseInitialArenaAndBenchPokemon:
 	ldh a, [hTempCardIndex_ff98]
 	ldtx hl, PlacedInTheArenaText
 	call DisplayCardDetailScreen
-	jr .choose_bench
+
 
 ; after choosing the active Pokemon, let the player place 0 or more basic Pokemon
 ; cards in the bench. loop until the player decides to stop placing Pokemon cards.
-.choose_bench
+ChooseInitialBenchPokemon:
 	call EmptyScreen
 	ld a, BOXMSG_BENCH_POKEMON
 	call DrawDuelBoxMessage
