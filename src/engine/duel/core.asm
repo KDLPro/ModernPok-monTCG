@@ -1698,6 +1698,8 @@ Func_4b38:
 ; - tossing coin to determine first player to go
 HandleDuelSetup:
 ; init variables and shuffle cards
+	xor a
+	ld [wTimesMulliganed], a
 	call InitializeDuelVariables
 	call SwapTurn
 	call InitializeDuelVariables
@@ -1730,6 +1732,7 @@ HandleDuelSetup:
 	call DisplayNoBasicPokemonInHandScreenAndText
 	call InitializeDuelVariables
 	call PlayShuffleAndDrawCardsAnimation_TurnDuelist
+	call IncreaseDrawPenalty
 	call ShuffleDeckAndDrawSevenCards
 	call IncreaseDrawPenalty
 	jr c, .ensure_player_basic_pkmn_loop
@@ -1760,6 +1763,7 @@ HandleDuelSetup:
 	call DisplayNoBasicPokemonInHandScreenAndText
 	call InitializeDuelVariables
 	call PlayShuffleAndDrawCardsAnimation_TurnDuelist
+	call IncreaseDrawPenalty
 	call ShuffleDeckAndDrawSevenCards
 	call IncreaseDrawPenalty
 	jr c, .ensure_opp_basic_pkmn_loop
