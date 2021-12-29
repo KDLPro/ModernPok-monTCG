@@ -183,3 +183,47 @@ RecycleDescription: ; 6495e (19:495e)
 	line "in your discard pile on top of your"
 	line "deck."
 	done
+
+MulliganPenalty1Text:
+	text "The player who doesn't have"
+	line "to mulligan draws more cards"
+	done
+	
+MulliganPenalty2Text:
+	text "equal to the number of times"
+	line "their opponent has to mulligan."
+	done
+	
+WillYouSkipTheTutorial:
+	text "If you know the basics you may"
+	line "skip this Practice Duel."
+	done
+	
+WillYouSkipQuestion:
+	text "Will you skip the Practice Duel?"
+	done
+	
+AreYouSure:
+	text "Are you sure you want to skip?"
+	done
+	
+YourOpponentSetsUp:
+	text "Your opponent will get to"
+	line "set up first."
+	done
+
+YouSetUp:
+	text "You will get to"
+	line "set up first."
+	done
+	
+DamageCheckIfHeadsXDamageText: ; 37fcd (d:7fcd)
+	text "Damage check!"
+	line "If Heads, x <RAMNUM> damage!!"
+	done	
+	
+BothPlayersReturnCardsToDeckAndDrawAgainText: ; 36c54 (d:6c54)
+	text "Both players return the cards"
+	line "to the Deck and draw again."
+	done	
+	

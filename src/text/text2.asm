@@ -170,11 +170,13 @@ ChangedTheColorOfText: ; 386d3 (e:46d3)
 	done
 
 Draw1CardFromTheDeckText: ; 386f2 (e:46f2)
-	text "Draw 1 card from the Deck."
+	text "<RAMNAME> draws"
+	line "1 card from the Deck."
 	done
 
 DrawCardsFromTheDeckText: ; 3870e (e:470e)
-	text "Draw <RAMNUM> card(s) from the Deck."
+	text "<RAMNAME> draws"
+	line "<RAMNUM> card(s) from the Deck."
 	done
 
 CannotDrawCardBecauseNoCardsInDeckText: ; 3872d (e:472d)
@@ -1909,5 +1911,3 @@ ThisDeckCanOnlyBeBuiltIfYouDismantleText: ; 3bf9e (e:7f9e)
 	text "This Deck can only be built if"
 	line "you dismantle another Deck."
 	done
-
-	ds $26
