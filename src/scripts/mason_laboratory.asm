@@ -402,8 +402,18 @@ Script_EnterLabFirstTime:
 
 .ows_d80c
 	print_npc_text Text05e9
-	ask_question_jump_default_yes NULL, .ows_d817
+	ask_question_jump_default_yes NULL, .skip_tutorial_ask
 	script_jump .ows_d7bc
+	
+.skip_tutorial_ask
+	print_npc_text WillYouSkipTheTutorial
+	print_npc_text WillYouSkipQuestion
+	ask_question_jump_default_yes NULL, .sure
+	script_jump .ows_d817
+.sure
+	print_npc_text AreYouSure
+	ask_question_jump_default_yes NULL, .ows_d82d
+	script_jump .skip_tutorial_ask
 
 .ows_d817
 	set_dialog_npc NPC_DRMASON
