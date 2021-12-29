@@ -899,7 +899,12 @@ wNumCardsBeingDrawn:: ; cbe9
 wTempSerialBuf:: ; cbed
 	ds $8
 
-	ds $2
+	ds $1
+
+; wTimesMulliganed stores the number of cards opponent draws
+; equal to the number of times opponent has to mulligan
+wTimesMulliganed::
+	ds $1
 
 wcbf7:: ; cbf7
 	ds $2
